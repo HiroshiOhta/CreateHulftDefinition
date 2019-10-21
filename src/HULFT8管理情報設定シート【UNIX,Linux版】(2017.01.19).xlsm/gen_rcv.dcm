@@ -1,0 +1,301 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "gen_rcv"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Private Sub Worksheet_Change(ByVal Target As Range)
+    '# 定数定義
+    Dim START_RECODES As Integer
+
+    '# 制限値用の定数定義
+    Dim RCVFILE_LIMIT As Integer
+    Dim FILENAME_LIMIT As Integer
+
+    '# 変数定義
+    Dim CellsVal As String
+    Dim warning_message As String
+
+    '# 定数設定
+    '# -----------------------------------------------------------------------------------------------------------------
+    START_RECODES = 13 - 1
+
+    '# 各タグの制限値設定
+    RCVFILE_LIMIT = 50
+    FILENAME_LIMIT = 200
+    OWNER_LIMIT = 14
+    COMMENT_LIMIT = 60
+    PASSWORD_MIN_LIMIT = 8
+    PASSWORD_MAX_LIMIT = 20
+    GENMNGNO_MIN_LIMIT = 2
+    GENMNGNO_MAX_LIMIT = 9999
+
+    If Target.Row > START_RECODES Then
+        '# セルの値を取得する
+        With gen_rcv
+            CellsVal = .Cells(Target.Row, Target.Column).Value
+        End With
+
+        Cells(Target.Row, Target.Column).Interior.ColorIndex = 0
+
+        '# =================================================================================================================
+        '# 入力値チェック
+        '# =================================================================================================================
+
+
+        '# 文字数チェック系
+        '# =================================================================================================================
+
+        '# RCVFILE, JOBID, EJOBID, GRPID 文字数チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column1 = 2
+        check_column2 = 13
+        check_column3 = 15
+
+        char_limit = RCVFILE_LIMIT
+
+        If (Target.Column = check_column1 Or (check_column2 <= Target.Column And Target.Column <= check_column3)) Then
+            warning_message = LengthCheck(CellsVal, char_limit)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+        '# FILENAME 文字数チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 3
+        char_limit = FILENAME_LIMIT
+
+        If Target.Column = check_column Then
+            warning_message = LengthCheck(CellsVal, char_limit)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+        '# OWNER, GROUP 文字数チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column1 = 4
+        check_column2 = 5
+        char_limit = OWNER_LIMIT
+
+        If (Target.Column = check_column1 Or Target.Column = check_column2) Then
+            warning_message = LengthCheck(CellsVal, char_limit)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# COMMENT 文字数チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 19
+        char_limit = COMMENT_LIMIT
+
+        If Target.Column = check_column Then
+            warning_message = LengthCheck(CellsVal, char_limit)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# 文字数チェック系(範囲)
+        '# =================================================================================================================
+
+        '# PASSWORD の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 16
+        char_min_limit = PASSWORD_MIN_LIMIT
+        char_max_limit = PASSWORD_MAX_LIMIT
+
+        If Target.Column = check_column Then
+            If Len(CellsVal) > 0 Then
+                warning_message = RangeCheck(CellsVal, char_min_limit, char_max_limit)
+                If Len(warning_message) <> 0 Then
+                    GoTo Warning_Exit
+                End If
+            End If
+            GoTo Normal_Exit
+        End If
+
+
+        '# 文字値チェック系
+        '# =================================================================================================================
+
+        '# CODESET の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 7
+        check_pattern = "0 A B C D E F G H I V W X"
+
+        If Target.Column = check_column Then
+            warning_message = StringCheck(CellsVal, check_pattern)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# TRANSMODE の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 8
+        check_pattern = "N R M"
+
+        If Target.Column = check_column Then
+            warning_message = StringCheck(CellsVal, check_pattern)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# ABNORMAL の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 9
+        check_pattern = "D K R"
+
+        If Target.Column = check_column Then
+            warning_message = StringCheck(CellsVal, check_pattern)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# RCVTYPE の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 10
+        check_pattern = "S M"
+
+        If Target.Column = check_column Then
+            warning_message = StringCheck(CellsVal, check_pattern)
+            If Len(warning_message) = 0 Then
+                If CellsVal = "M" Then
+                    With gen_rcv
+                        transmode_val = .Cells(Target.Row, Target.Column - 2).Value
+                        abnormal_val = .Cells(Target.Row, Target.Column - 1).Value
+                    End With
+                    If transmode_val = "M" And abnormal_val = "K" Then
+                        GoTo Normal_Exit
+                    Else
+                        warning_message = "M を指定するときは、「登録モード」に M を、「異常時の処置」に K を指定してください。"
+                        GoTo Warning_Exit
+                    End If
+                End If
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# GENCTL の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 11
+        check_pattern = "Y N"
+
+        If Target.Column = check_column Then
+            warning_message = StringCheck(CellsVal, check_pattern)
+            If Len(warning_message) = 0 Then
+                If CellsVal = "Y" Then
+                    With gen_rcv
+                        transmode_val = .Cells(Target.Row, Target.Column - 3).Value
+                        abnormal_val = .Cells(Target.Row, Target.Column - 2).Value
+                    End With
+                    If (transmode_val = "N" Or transmode_val = "R") And abnormal_val = "D" Then
+                        GoTo Normal_Exit
+                    Else
+                        warning_message = "Y を指定するときは、「登録モード」に N または R を、「異常時の処置」に D を指定してください。"
+                        GoTo Warning_Exit
+                    End If
+                End If
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# JOBWAIT の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 17
+        check_pattern = "J T"
+
+        If Target.Column = check_column Then
+            warning_message = StringCheck(CellsVal, check_pattern)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# DATAVERIFY の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 18
+        check_pattern = "0 1"
+
+        If Target.Column = check_column Then
+            warning_message = StringCheck(CellsVal, check_pattern)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# 文字値チェック系(範囲)
+        '# =================================================================================================================
+
+        '# GENMNGNO の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 12
+        min_limit = GENMNGNO_MIN_LIMIT
+        max_limit = GENMNGNO_MAX_LIMIT
+
+        If Target.Column = check_column Then
+            If CellsVal <> "" Then
+                If CellsVal = 0 Or (min_limit <= CellsVal And CellsVal <= max_limit) Then
+                    GoTo Normal_Exit
+                Else
+                    warning_message = "0 または " + CStr(min_limit) + " ～ " + CStr(max_limit) + " の範囲で入力してください。"
+                    GoTo Warning_Exit
+                End If
+            Else
+                GoTo Normal_Exit
+            End If
+        End If
+
+
+        '# 警告終了
+        '# -----------------------------------------------------------------------------------------------------------------
+Warning_Exit:
+        Cells(Target.Row, Target.Column).Interior.ColorIndex = 46
+        MsgBox warning_message, vbOKOnly + vbExclamation, "入力エラー"
+
+        '# 正常終了
+        '# -----------------------------------------------------------------------------------------------------------------
+Normal_Exit:
+
+    End If
+
+End Sub

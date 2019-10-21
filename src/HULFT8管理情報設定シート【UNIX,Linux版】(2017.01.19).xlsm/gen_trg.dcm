@@ -1,0 +1,196 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "gen_trg"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Private Sub Worksheet_Change(ByVal Target As Range)
+    '# 定数定義
+    Dim START_RECODES As Integer
+
+    '# 制限値用の定数定義
+    Dim TRIGERID_LIMIT As Integer
+    Dim DIRECTORYNAME_LIMIT As Integer
+    Dim TARGETFILENAME_LIMIT As Integer
+    Dim INTERVAL_MIN_LIMIT As Integer
+    Dim COMMENT_LIMIT As Integer
+    Dim INTERVAL_MAX_LIMIT As Long
+
+    '# 変数定義
+    Dim CellsVal As String
+    Dim warning_message As String
+
+    '# 定数設定
+    '# -----------------------------------------------------------------------------------------------------------------
+    START_RECODES = 13 - 1
+
+    '# 各タグの制限値設定
+    TRIGERID_LIMIT = 50
+    DIRECTORYNAME_LIMI1T = 3
+    INTERVAL_MIN_LIMIT = 10
+    INTERVAL_MAX_LIMIT = 2678400
+    COMMENT_LIMIT = 60
+
+    If Target.Row > START_RECODES Then
+        '# セルの値を取得する
+        With gen_trg
+            CellsVal = .Cells(Target.Row, Target.Column).Value
+        End With
+
+        Cells(Target.Row, Target.Column).Interior.ColorIndex = 0
+
+        '# =================================================================================================================
+        '# 入力値チェック
+        '# =================================================================================================================
+
+        '# 文字数チェック系
+        '# -----------------------------------------------------------------------------------------------------------------
+        '# TRGID, JOBID 文字数チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column1 = 2
+        check_column2 = 5
+        char_limit = TRIGERID_LIMIT
+
+        If (Target.Column = check_column1 Or Target.Column = check_column2) Then
+            warning_message = LengthCheck(CellsVal, char_limit)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+        '# DIRECTORYNAME, TARGETFILENAME の文字数チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column1 = 3
+        check_column2 = 4
+        char_limit = DIRECTORYNAME_LIMI1T
+
+        If (Target.Column = check_column1 Or Target.Column = check_column2) Then
+
+            With gen_trg
+                If Target.Column = 3 Then
+                    deps_value = .Cells(Target.Row, Target.Column + 1).Value
+                Else
+                    deps_value = .Cells(Target.Row, Target.Column - 1).Value
+                End If
+            End With
+
+            warning_message = LengthCheck(CellsVal & deps_value, char_limit)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                warning_message = "「ディレクトリ名」と「ファイル名」の合計で" & warning_message
+                GoTo Warning_Exit
+            End If
+        End If
+
+        '# COMMENT 文字数チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 16
+        char_limit = COMMENT_LIMIT
+
+        If Target.Column = check_column Then
+            warning_message = LengthCheck(CellsVal, char_limit)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# 文字値チェック系
+        '# =================================================================================================================
+
+        '# 以下のタグ名について、 Y、N、空以外が入力されていないかチェックを行う。
+        '#   SUBDIRECTORY
+        '#   Create
+        '#   Delete
+        '#   Modify
+        '#   FILECHECK
+        '#   FILECHECKWAIT
+        '#   EXECUTION
+        '#   REGEX
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_pattern = "Y N"
+        If (6 <= Target.Column And Target.Column <= 15) And Target.Row > START_RECODES Then
+            If Target.Column <> 10 And Target.Column <> 13 Then
+
+                warning_message = StringCheck(CellsVal, check_pattern)
+                If Len(warning_message) = 0 Then
+
+                    '# 他オプションとの依存確認
+                    If Target.Column = 12 Then
+
+                        With gen_trg
+                            LeftCellVal = .Cells(Target.Row, Target.Column - 1).Value
+                        End With
+
+                        If LeftCellVal = "N" And CellsVal = "Y" Then
+                            warning_message = "「ファイル操作確認」 に N を指定した場合は、 Y を指定できません。"
+                            GoTo Warning_Exit
+                        End If
+                    End If
+
+                    GoTo Normal_Exit
+                Else
+                    GoTo Warning_Exit
+                End If
+            End If
+        End If
+
+        '# TYPE の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 10
+        check_pattern = "S T"
+
+        If Target.Column = check_column Then
+            warning_message = StringCheck(CellsVal, check_pattern)
+            If Len(warning_message) = 0 Then
+                GoTo Normal_Exit
+            Else
+                GoTo Warning_Exit
+            End If
+        End If
+
+
+        '# 文字値チェック系(範囲)
+        '# =================================================================================================================
+
+        '# INTERVAL の入力文字チェック
+        '# -----------------------------------------------------------------------------------------------------------------
+        check_column = 13
+        min_limit = INTERVAL_MIN_LIMIT
+        max_limit = INTERVAL_MAX_LIMIT
+
+        If Target.Column = check_column Then
+            If CellsVal <> "" Then
+                If min_limit <= CellsVal And CellsVal <= max_limit Then
+                    GoTo Normal_Exit
+                Else
+                    warning_message = CStr(min_limit) + " ～ " + CStr(max_limit) + " の範囲で入力してください。"
+                    GoTo Warning_Exit
+                End If
+            Else
+                GoTo Normal_Exit
+            End If
+        End If
+
+
+        '# 警告終了
+        '# -----------------------------------------------------------------------------------------------------------------
+Warning_Exit:
+        Cells(Target.Row, Target.Column).Interior.ColorIndex = 46
+        MsgBox warning_message, vbOKOnly + vbExclamation, "入力エラー"
+
+        '# 正常終了
+        '# -----------------------------------------------------------------------------------------------------------------
+Normal_Exit:
+
+    End If
+
+End Sub
