@@ -2,11 +2,15 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "gen_mfmt"
+Attribute VB_Name = "mfmt"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+'# __author__  = "Hiroshi Ohta"
+'# __version__ = "0.01"
+'# __date__    = "01 Nov 2019"
+
 Private Sub Worksheet_Change(ByVal Target As Range)
     '# 定数定義
     Dim START_RECODES As Integer
@@ -26,7 +30,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
     '# 定数設定
     '# -----------------------------------------------------------------------------------------------------------------
-    START_RECODES = 13 - 1 + 2
+    START_RECODES = 14 - 1 + 2
 
     '# 各タグの制限値設定
     MFMT_LIMIT = 50
@@ -41,7 +45,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     '# -----------------------------------------------------------------------------------------------------------------
     If Target.Row > START_RECODES Then
         '# セルの値を取得する
-        With gen_mfmt
+        With mfmt
             CellsVal = .Cells(Target.Row, Target.Column).Value
         End With
 
