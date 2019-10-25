@@ -1,4 +1,8 @@
 Attribute VB_Name = "com_function"
+'# __author__  = "Hiroshi Ohta"
+'# __version__ = "0.01"
+'# __date__    = "01 Nov 2019"
+
 Function LengthCheck(ByVal CellsVal As String, ByVal char_limit As Integer) As String
         LengthCheck = ""
         If Len(CellsVal) > char_limit Then
@@ -44,7 +48,7 @@ Function StringRangeCheck(ByVal CellsVal As String, ByVal char_min_limit As Inte
                     prmit_zero_message = "0 または "
                 End If
 
-                StringRangeCheck = prmit_zero_message + CStr(char_min_limit) & " ～ " & CStr(char_max_limit) & " バイト以内で入力してください。"
+                StringRangeCheck = prmit_zero_message + CStr(char_min_limit) & " ～ " & CStr(char_max_limit) & " の範囲で入力してください。"
             End If
         End If
 End Function
