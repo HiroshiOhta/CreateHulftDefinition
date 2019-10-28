@@ -52,3 +52,61 @@ Function StringRangeCheck(ByVal CellsVal As String, ByVal char_min_limit As Inte
             End If
         End If
 End Function
+
+Function GetDefData(ByVal def_category As Variant) As Variant
+    '# 定数定義
+    '# -----------------------------------------------------------------------------------------------------------------
+    Dim EXLS_MAX_COLUM As Long
+    Dim EXLS_MAX_ROW As Long
+    
+    
+    '# 変数定義
+    '# -----------------------------------------------------------------------------------------------------------------
+    Dim column_cnt As Long
+    Dim row_cnt As Long
+    Dim data_column As Long
+    Dim data_row As Long
+    Dim check_row As Integer
+    Dim def_data As Variant
+    
+    '# 定数設定
+    '# -----------------------------------------------------------------------------------------------------------------
+    EXLS_MAX_COLUM = 16384
+    EXLS_MAX_ROW = 1048576
+    
+    
+    '# パラメータ数取得
+    check_row = 6
+    If def_category = "hst" Then
+        check_row = check_row + 1
+    End If
+
+    For column_cnt = 2 To EXLS_MAX_COLUM Step 1
+        If Cells(check_row, column_cnt).Value <> "" Then
+            data_column = column_cnt
+        Else
+            Exit For
+        End If
+    Next
+        
+    '# 登録レコード数取得
+    check_column = 2
+    If def_category = "tgrp" Or def_category = "fmt" Then
+        check_column = check_column + 1
+    ElseIf def_category = "mfmt" Then
+        check_column = check_column + 4
+    End If
+        
+    For row_cnt = 12 To EXLS_MAX_COLUM Step 1
+        If Cells(row_cnt, check_column).Value <> "" Then
+            data_row = row_cnt
+        Else
+            Exit For
+        End If
+    Next
+        
+    '# 定義情報の取得
+    GetDefData = Range(Cells(check_row, 2), Cells(data_row, data_column))
+
+
+End Function
