@@ -39,7 +39,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
     '# メイン処理
     '# -----------------------------------------------------------------------------------------------------------------
-    If Target.Row > START_RECODES Then
+    If Target.Row > START_RECODES And Target.Column <> 1 Then
         '# セルの値を取得する
         With tgrp
             CellsVal = .Cells(Target.Row, Target.Column).Value
@@ -55,10 +55,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         '# =================================================================================================================
         '# GRP 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 2
+        CHECK_COLUMN = 2
         char_limit = GRP_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -69,10 +69,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# SERVER DEF～DEFEND 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 3
+        CHECK_COLUMN = 3
         char_limit = SERVER_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 If CellsVal <> "" Then
@@ -97,10 +97,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# COMMENT 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 4
+        CHECK_COLUMN = 4
         char_limit = COMMENT_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -109,6 +109,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             End If
         End If
 
+
+        GoTo Normal_Exit
 
         '# 警告終了
         '# -----------------------------------------------------------------------------------------------------------------
@@ -123,3 +125,5 @@ Normal_Exit:
     End If
 
 End Sub
+
+

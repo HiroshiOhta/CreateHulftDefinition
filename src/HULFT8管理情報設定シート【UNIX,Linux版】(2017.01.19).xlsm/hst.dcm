@@ -49,7 +49,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
     '# メイン処理
     '# -----------------------------------------------------------------------------------------------------------------
-    If Target.Row > START_RECODES Then
+    If Target.Row > START_RECODES And Target.Column <> 1 Then
         '# セルの値を取得する
         With hst
             CellsVal = .Cells(Target.Row, Target.Column).Value
@@ -66,10 +66,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# HOST 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 2
+        CHECK_COLUMN = 2
         char_limit = HOST_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 If CellsVal <> "" Then
@@ -94,10 +94,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# COMMENT 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 18
+        CHECK_COLUMN = 18
         char_limit = COMMENT_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -127,10 +127,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# HOSTTYPE の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 3
+        CHECK_COLUMN = 3
         check_pattern = "H U N W A K"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -141,10 +141,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# KCODETYPE の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 4
+        CHECK_COLUMN = 4
         check_pattern = "S E 8 J I K N G C"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -155,10 +155,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# JISYEAR の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 5
+        CHECK_COLUMN = 5
         check_pattern = "0 1"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -169,10 +169,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# CONNECTTYPE の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 6
+        CHECK_COLUMN = 6
         check_pattern = "L"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -217,11 +217,11 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# HOSTSPSNUM の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 9
+        CHECK_COLUMN = 9
         min_limit = HOSTSPSNUM_MIN_LIMIT
         max_limit = HOSTSPSNUM_MAX_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringRangeCheck(CellsVal, min_limit, max_limit, 1)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -230,7 +230,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             End If
         End If
 
-
+        GoTo Normal_Exit
 
         '# 警告終了
         '# -----------------------------------------------------------------------------------------------------------------

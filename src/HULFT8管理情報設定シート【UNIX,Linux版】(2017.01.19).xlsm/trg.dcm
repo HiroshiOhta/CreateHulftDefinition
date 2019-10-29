@@ -37,7 +37,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     INTERVAL_MAX_LIMIT = 2678400
     COMMENT_LIMIT = 60
 
-    If Target.Row > START_RECODES Then
+    If Target.Row > START_RECODES And Target.Column <> 1 Then
         '# セルの値を取得する
         With trg
             CellsVal = .Cells(Target.Row, Target.Column).Value
@@ -93,10 +93,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# COMMENT 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 16
+        CHECK_COLUMN = 16
         char_limit = COMMENT_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -153,10 +153,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# TYPE の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 10
+        CHECK_COLUMN = 10
         check_pattern = "S T"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -171,11 +171,11 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# INTERVAL の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 13
+        CHECK_COLUMN = 13
         min_limit = INTERVAL_MIN_LIMIT
         max_limit = INTERVAL_MAX_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringRangeCheck(CellsVal, min_limit, max_limit, 1)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -183,6 +183,9 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 GoTo Warning_Exit
             End If
         End If
+
+
+        GoTo Normal_Exit
 
         '# 警告終了
         '# -----------------------------------------------------------------------------------------------------------------
@@ -197,3 +200,5 @@ Normal_Exit:
     End If
 
 End Sub
+
+

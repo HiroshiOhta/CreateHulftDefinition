@@ -43,7 +43,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
     '# メイン処理
     '# -----------------------------------------------------------------------------------------------------------------
-    If Target.Row > START_RECODES Then
+    If Target.Row > START_RECODES And Target.Column <> 1 Then
         '# セルの値を取得する
         With mfmt
             CellsVal = .Cells(Target.Row, Target.Column).Value
@@ -56,10 +56,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         '# =================================================================================================================
         '# MFMT 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 2
+        CHECK_COLUMN = 2
         char_limit = MFMT_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 If CellsVal Like "[A-Z]*" Or CellsVal = "" Then
@@ -90,10 +90,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# COMMENT 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 8
+        CHECK_COLUMN = 8
         char_limit = COMMENT_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -107,10 +107,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         '# =================================================================================================================
         '# MFORMAT DEF～DEFEND(キー値) の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 6
+        CHECK_COLUMN = 6
         check_pattern = "X M"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -124,11 +124,11 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         '# =================================================================================================================
         '# KEYSTART の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 3
+        CHECK_COLUMN = 3
         min_limit = KEYSTART_MIN_LIMIT
         max_limit = KEYSTART_MAX_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringRangeCheck(CellsVal, min_limit, max_limit, 1)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -139,11 +139,11 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# KEYLEN の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 4
+        CHECK_COLUMN = 4
         min_limit = KEYLEN_MIN_LIMIT
         max_limit = KEYLEN_MAX_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringRangeCheck(CellsVal, min_limit, max_limit, 1)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -152,6 +152,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             End If
         End If
 
+
+        GoTo Normal_Exit
 
         '# 警告終了
         '# -----------------------------------------------------------------------------------------------------------------
@@ -166,3 +168,5 @@ Normal_Exit:
     End If
 
 End Sub
+
+

@@ -45,7 +45,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
     '# メイン処理
     '# -----------------------------------------------------------------------------------------------------------------
-    If Target.Row > START_RECODES Then
+    If Target.Row > START_RECODES And Target.Column <> 1 Then
         '# セルの値を取得する
         With rcv
             CellsVal = .Cells(Target.Row, Target.Column).Value
@@ -80,10 +80,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# FILENAME 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 3
+        CHECK_COLUMN = 3
         char_limit = FILENAME_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -110,10 +110,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# COMMENT 文字数チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 19
+        CHECK_COLUMN = 19
         char_limit = COMMENT_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = LengthCheck(CellsVal, char_limit)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -128,11 +128,11 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# PASSWORD の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 16
+        CHECK_COLUMN = 16
         char_min_limit = PASSWORD_MIN_LIMIT
         char_max_limit = PASSWORD_MAX_LIMIT
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             If Len(CellsVal) > 0 Then
                 warning_message = RangeCheck(CellsVal, char_min_limit, char_max_limit)
                 If Len(warning_message) <> 0 Then
@@ -148,10 +148,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# CODESET の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 7
+        CHECK_COLUMN = 7
         check_pattern = "0 A B C D E F G H I V W X"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -163,10 +163,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# TRANSMODE の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 8
+        CHECK_COLUMN = 8
         check_pattern = "N R M"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -178,10 +178,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# ABNORMAL の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 9
+        CHECK_COLUMN = 9
         check_pattern = "D K R"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -193,10 +193,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# RCVTYPE の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 10
+        CHECK_COLUMN = 10
         check_pattern = "S M"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 If CellsVal = "M" Then
@@ -220,10 +220,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# GENCTL の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 11
+        CHECK_COLUMN = 11
         check_pattern = "Y N"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 If CellsVal = "Y" Then
@@ -247,10 +247,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# JOBWAIT の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 17
+        CHECK_COLUMN = 17
         check_pattern = "J T"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -262,10 +262,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# DATAVERIFY の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 18
+        CHECK_COLUMN = 18
         check_pattern = "0 1"
 
-        If Target.Column = check_column Then
+        If Target.Column = CHECK_COLUMN Then
             warning_message = StringCheck(CellsVal, check_pattern)
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
@@ -277,8 +277,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         
         '# PERM の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 6
-        If Target.Column = check_column Then
+        CHECK_COLUMN = 6
+        If Target.Column = CHECK_COLUMN Then
             If CellsVal = "" Or CellsVal Like "[0-7][0-7][0-7]" Then
                GoTo Normal_Exit
             Else
@@ -293,18 +293,31 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         '# GENMNGNO の入力文字チェック
         '# -----------------------------------------------------------------------------------------------------------------
-        check_column = 12
+        CHECK_COLUMN = 12
         min_limit = GENMNGNO_MIN_LIMIT
         max_limit = GENMNGNO_MAX_LIMIT
 
-        If Target.Column = check_column Then
-            warning_message = StringRangeCheck(CellsVal, min_limit, max_limit, 0)
+        If Target.Column = CHECK_COLUMN Then
+            With rcv
+                GenctlVal = .Cells(Target.Row, Target.Column - 1).Value
+            End With
+            If GenctlVal = "N" And CellsVal <> 0 Then
+                warning_message = "「世代管理」に N を指定した場合は、0 を指定します。"
+            ElseIf GenctlVal = "Y" And CellsVal < 2 Then
+                warning_message = "「世代管理」に Y を指定した場合は、世代数を指定してください。"
+            Else
+                warning_message = StringRangeCheck(CellsVal, min_limit, max_limit, 0)
+            End If
+            
             If Len(warning_message) = 0 Then
                 GoTo Normal_Exit
             Else
                 GoTo Warning_Exit
             End If
         End If
+
+
+        GoTo Normal_Exit
 
         '# 警告終了
         '# -----------------------------------------------------------------------------------------------------------------
@@ -319,3 +332,5 @@ Normal_Exit:
     End If
 
 End Sub
+
+
